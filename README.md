@@ -28,6 +28,12 @@ npm start
 
 默认通过 Streamable HTTP 监听 `http://127.0.0.1:3001/mcp`。可通过 `HOST` 和 `PORT` 配置监听地址和端口。发布时复制 `dist/`、`package.json` 和 `package-lock.json`，再运行 `npm ci --omit=dev` 和 `npm start`。远程访问由部署环境控制。
 
+本地浏览器页面跨域访问 `/mcp` 时，启动服务前用 `MCP_CORS_ORIGINS` 指定页面的 Origin，包含协议和端口。多个 Origin 用逗号分隔。默认不开放跨域访问。
+
+```sh
+MCP_CORS_ORIGINS=http://localhost:5173 npm start
+```
+
 ## 声明工具
 
 `app.ts` 导出 `app`。`description` 写清楚什么时候打开组件，`inputSchema` 用 Zod 声明参数。只有 `description` 必填。

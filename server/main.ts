@@ -5,8 +5,24 @@ import { loadApps, registerApps } from "./catalog.js";
 
 const host = process.env.HOST ?? "127.0.0.1";
 const port = Number(process.env.PORT ?? "3001");
+const corsOrigins = new Set(process.env.MCP_CORS_ORIGINS?.split(",").map((origin) => origin.trim()));
 const app = createMcpExpressApp({ host });
 const components = await loadApps();
+
+app.all("/mcp", (request, response, next) => {
+  response.vary("Origin");
+  const origin = request.get("Origin");
+  if (origin && corsOrigins.has(origin)) {
+    response.set("Access-Control-Allow-Origin", origin);
+    if (request.method === "OPTIONS") {
+      response.set("Access-Control-Allow-Methods", "GET, POST, DELETE");
+      response.set("Access-Control-Allow-Headers", "Accept, Authorization, Content-Type, Last-Event-ID, Mcp-Method, Mcp-Name, Mcp-Protocol-Version, Mcp-Session-Id");
+      response.status(204).end();
+      return;
+    }
+  }
+  next();
+});
 
 app.all("/mcp", async (request, response) => {
   const server = new McpServer({ name: "mcp-component-server", version: "0.1.0" });
